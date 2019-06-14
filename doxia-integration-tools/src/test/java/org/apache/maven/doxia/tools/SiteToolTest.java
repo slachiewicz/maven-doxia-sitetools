@@ -302,13 +302,13 @@ public class SiteToolTest
     {
         SiteTool tool = (SiteTool) lookup( SiteTool.ROLE );
 
-        assertEquals( Arrays.asList( new Locale[] { SiteTool.DEFAULT_LOCALE } ), tool.getSiteLocales( "en" ) );
+        assertEquals( Collections.singletonList( SiteTool.DEFAULT_LOCALE ), tool.getSiteLocales( "en" ) );
 
-        assertEquals( Arrays.asList( new Locale[] { SiteTool.DEFAULT_LOCALE, Locale.FRENCH, Locale.ITALIAN } ),
+        assertEquals( Arrays.asList( SiteTool.DEFAULT_LOCALE, Locale.FRENCH, Locale.ITALIAN ),
                       tool.getSiteLocales( "en,fr,it" ) );
 
         // by default, only DEFAULT_LOCALE
-        assertEquals( Arrays.asList( new Locale[] { SiteTool.DEFAULT_LOCALE } ), tool.getSiteLocales( "" ) );
+        assertEquals( Collections.singletonList( SiteTool.DEFAULT_LOCALE ), tool.getSiteLocales( "" ) );
     }
 
     public void testGetInterpolatedSiteDescriptorContent()
@@ -396,14 +396,9 @@ public class SiteToolTest
     private void writeModel( DecorationModel model, String to )
         throws Exception
     {
-        Writer writer = WriterFactory.newXmlWriter( getTestFile( "target/test-classes/" + to ) );
-        try
+        try ( Writer writer = WriterFactory.newXmlWriter( getTestFile( "target/test-classes/" + to ) ) )
         {
             new DecorationXpp3Writer().write( writer, model );
-        }
-        finally
-        {
-            IOUtil.close( writer );
         }
     }
 }
