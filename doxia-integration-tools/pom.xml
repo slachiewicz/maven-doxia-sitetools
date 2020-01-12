@@ -35,7 +35,7 @@
   <description>A collection of tools to help the integration of Doxia Sitetools in Maven plugins.</description>
 
   <properties>
-    <mavenVersion>2.2.1</mavenVersion>
+    <mavenVersion>3.6.3</mavenVersion>
   </properties>
 
   <dependencies>
