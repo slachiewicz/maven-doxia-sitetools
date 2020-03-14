@@ -40,6 +40,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.doxia.site.decoration.Banner;
@@ -61,6 +63,7 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.reporting.MavenReport;
 import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResolver;
 import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResolverException;
+import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.i18n.I18N;
@@ -122,8 +125,7 @@ public class DefaultSiteTool
     protected ProjectBuilder projectBuilder;
 
     @Requirement
-    private MavenProject legacySupport;
-
+    protected LegacySupport legacySupport;
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
@@ -158,10 +160,11 @@ public class DefaultSiteTool
                                                                  "jar", null, null );
 
             ProjectBuildingRequest pbr = new DefaultProjectBuildingRequest()
-                    .setRepositorySession( legacySupport.getRepositorySession() )
+                    .setRepositorySession( MavenRepositorySystemSession)
                     .setLocalRepository( localRepository )
                     .setRemoteRepositories( remoteArtifactRepositories );
-            artifactResolver.resolveArtifact(  pbr, artifact );
+            ArtifactResult result = artifactResolver.resolveArtifact( pbr, artifact );
+            return result.getArtifact();
         }
         catch ( InvalidVersionSpecificationException e )
         {
@@ -172,8 +175,6 @@ public class DefaultSiteTool
         {
             throw new SiteToolException( "ArtifactResolverException: Unable to find skin", e );
         }
-
-        return artifact;
     }
 
     public Artifact getDefaultSkinArtifact( ArtifactRepository localRepository,
@@ -388,6 +389,11 @@ public class DefaultSiteTool
         }
         catch ( ArtifactResolverException e )
         {
+            getLogger().debug( "ArtifactNotFoundException: Unable to locate site descriptor: " + e );
+            return null;
+        }
+        catch ( ArtifactResolverException | ArtifactResolutionException e )
+        {
             throw new SiteToolException( "ArtifactResolutionException: Unable to locate site descriptor: "
                 + e.getMessage(), e );
         }
@@ -573,7 +579,6 @@ public class DefaultSiteTool
         checkNotNull( "reactorProjects", reactorProjects );
         checkNotNull( "localRepository", localRepository );
 
-        // no need to make voodoo with Maven 3: job already done
         return aProject.getParent();
     }
 
@@ -585,8 +590,8 @@ public class DefaultSiteTool
      * @param project a Maven project, not null.
      * @param parentProject a Maven parent project, not null.
      */
-    private void populateParentMenu( DecorationModel decorationModel, Locale locale, MavenProject project,
-                                     MavenProject parentProject )
+    private void populateParentMenu( DecorationModel decorationModel, Locale locale,
+    MavenProject project, MavenProject parentProject )
     {
         checkNotNull( "decorationModel", decorationModel );
         checkNotNull( "project", project );
@@ -666,8 +671,8 @@ public class DefaultSiteTool
      * @throws SiteToolException if any
      * @throws IOException 
      */
-    private void populateModulesMenu( DecorationModel decorationModel, Locale locale, MavenProject project,
-                                      List<MavenProject> reactorProjects, ArtifactRepository localRepository )
+    private void populateModulesMenu( DecorationModel decorationModel, Locale locale,
+    MavenProject project, List<MavenProject> reactorProjects, ArtifactRepository localRepository )
         throws SiteToolException, IOException
     {
         checkNotNull( "project", project );
@@ -697,7 +702,7 @@ public class DefaultSiteTool
                 menu.setName( i18n.getString( "site-tool", llocale, "decorationModel.menu.projectmodules" ) );
             }
 
-            for ( String module : (List<String>) project.getModules() )
+            for ( String module : project.getModules() )
             {
                 MavenProject moduleProject = getModuleFromReactor( project, reactorProjects, module );
 
@@ -961,8 +966,7 @@ public class DefaultSiteTool
      * @throws IOException if any
      */
     private File resolveSiteDescriptor( MavenProject project, ArtifactRepository localRepository,
-                                        List<ArtifactRepository> repositories, Locale locale )
-        throws IOException, ArtifactResolverException
+                                        List<ArtifactRepository> repositories, Locale locale ) throws IOException, ArtifactResolutionException, ArtifactNotFoundException, ArtifactResolverException
     {
         File result;
 
@@ -979,9 +983,9 @@ public class DefaultSiteTool
                 .setRemoteRepositories( repositories );
         try
         {
-            artifactResolver.resolveArtifact(  pbr, artifact );
+            ArtifactResult artifactResult = artifactResolver.resolveArtifact( pbr, artifact );
 
-            result = artifact.getFile();
+            result = artifactResult.getArtifact().getFile();
 
             // we use zero length files to avoid re-resolution (see below)
             if ( result.length() > 0 )
@@ -1009,9 +1013,10 @@ public class DefaultSiteTool
         {
             artifact = artifactFactory.createArtifactWithClassifier( project.getGroupId(), project.getArtifactId(),
                                                                      project.getVersion(), "xml", "site" );
+            ArtifactResult artifactResult;
             try
             {
-                artifactResolver.resolveArtifact(  pbr, artifact );
+                artifactResult = artifactResolver.resolveArtifact( pbr, artifact );
             }
             catch ( ArtifactResolverException e )
             {
@@ -1023,7 +1028,7 @@ public class DefaultSiteTool
                 throw e;
             }
 
-            result = artifact.getFile();
+            result = artifactResult.getArtifact().getFile();
 
             // we use zero length files to avoid re-resolution (see below)
             if ( result.length() == 0 )
