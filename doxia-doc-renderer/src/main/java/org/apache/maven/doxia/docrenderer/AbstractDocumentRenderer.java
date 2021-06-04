@@ -59,7 +59,6 @@ import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.codehaus.plexus.velocity.SiteResourceLoader;
 import org.codehaus.plexus.velocity.VelocityComponent;
 
 /**
@@ -512,7 +511,7 @@ public abstract class AbstractDocumentRenderer
                     {
                         reader = getVelocityReader( f, ( (XmlStreamReader) reader ).getEncoding(), context );
                     }
-                    if ( context != null && Boolean.TRUE.equals( (Boolean) context.get( "validate" ) ) )
+                    if ( context != null && Boolean.TRUE.equals( context.get( "validate" ) ) )
                     {
                         reader = validate( reader, fullDocPath );
                     }
@@ -668,8 +667,8 @@ public abstract class AbstractDocumentRenderer
         {
             getLogger().debug( "Velocity render for " + f.getAbsolutePath() );
         }
-
-        SiteResourceLoader.setResource( f.getAbsolutePath() );
+// TODO
+//        SiteResourceLoader.setResource( f.getAbsolutePath() );
 
         Context velocityContext = new VelocityContext();
 
