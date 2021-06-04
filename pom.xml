@@ -74,6 +74,16 @@ under the License.
     <project.build.outputTimestamp>2020-02-19T07:03:09Z</project.build.outputTimestamp>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>plexus-oss</id>
+      <url>https://oss.sonatype.org/service/local/repositories/plexus-snapshots/content/</url>
+      <snapshots><enabled>true</enabled></snapshots>
+      <releases><enabled>false</enabled>
+      </releases>
+    </repository>
+  </repositories>
+
   <dependencyManagement>
     <dependencies>
       <!-- doxia -->
