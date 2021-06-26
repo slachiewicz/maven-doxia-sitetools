@@ -200,7 +200,7 @@ under the License.
       <dependency>
         <groupId>org.apache.velocity.tools</groupId>
         <artifactId>velocity-tools-generic</artifactId>
-        <version>3.0</version>
+        <version>3.1</version>
       </dependency>
       <!-- Test -->
       <dependency>
