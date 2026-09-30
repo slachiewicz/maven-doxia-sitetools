@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.maven.artifact.Artifact;
+import org.apache.maven.api.DownloadedArtifact;
 import org.apache.maven.doxia.parser.Parser;
 import org.apache.maven.doxia.site.SiteModel;
 import org.apache.maven.doxia.site.skin.SkinModel;
@@ -127,7 +127,7 @@ public class SiteRenderingContext {
 
     private String defaultTitle;
 
-    private Artifact skin;
+    private DownloadedArtifact skin;
 
     private File skinFile;
 
@@ -352,25 +352,22 @@ public class SiteRenderingContext {
     /**
      * <p>Getter for the field <code>skin</code>.</p>
      *
-     * @return a {@link Artifact} object, or {@code null} if the skin was set with {@link #setSkin(File, String)}.
-     * @deprecated Use {@link #getSkinFile()} and {@link #getSkinId()}; removed in the Maven 4 API line.
+     * @return a {@link DownloadedArtifact} object, or {@code null} if the skin was set with
+     *         {@link #setSkin(File, String)}.
      */
-    @Deprecated
-    public Artifact getSkin() {
+    public DownloadedArtifact getSkin() {
         return skin;
     }
 
     /**
      * <p>Setter for the field <code>skinJarFile</code>.</p>
      *
-     * @param skin an {@link Artifact} object.
-     * @deprecated Use {@link #setSkin(File, String)}; removed in the Maven 4 API line.
+     * @param skin a {@link DownloadedArtifact} object.
      */
-    @Deprecated
-    public void setSkin(Artifact skin) {
+    public void setSkin(DownloadedArtifact skin) {
         this.skin = skin;
-        this.skinFile = (skin == null) ? null : skin.getFile();
-        this.skinId = (skin == null) ? null : skin.getId();
+        this.skinFile = (skin == null) ? null : skin.getPath().toFile();
+        this.skinId = (skin == null) ? null : skin.key();
     }
 
     /**

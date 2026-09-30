@@ -25,7 +25,8 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.maven.artifact.Artifact;
+import org.apache.maven.api.DownloadedArtifact;
+import org.apache.maven.api.Session;
 import org.apache.maven.doxia.site.SiteModel;
 
 /**
@@ -63,6 +64,7 @@ public interface SiteRenderer {
     /**
      * Create a Site Rendering Context for a site using a skin.
      *
+     * @param session the Maven session, used to parse the version constraint of the skin prerequisites
      * @param skin a skin
      * @param attributes attributes to use
      * @param siteModel a site model
@@ -71,18 +73,21 @@ public interface SiteRenderer {
      * @return a SiteRenderingContext.
      * @throws RendererException if it bombs.
      * @throws java.io.IOException if it bombs.
-     * @since 1.7.3 was previously with skin as File instead of Artifact
-     * @deprecated Use {@link #createContextForSkin(File, String, Map, SiteModel, String, Locale)}; removed in the
-     *             Maven 4 API line.
+     * @since 3.0.0 was previously with a Maven 3 <code>Artifact</code> as skin and without session
      */
-    @Deprecated
     SiteRenderingContext createContextForSkin(
-            Artifact skin, Map<String, ?> attributes, SiteModel siteModel, String defaultTitle, Locale locale)
+            Session session,
+            DownloadedArtifact skin,
+            Map<String, ?> attributes,
+            SiteModel siteModel,
+            String defaultTitle,
+            Locale locale)
             throws RendererException, IOException;
 
     /**
      * Create a Site Rendering Context for a site using a skin.
      *
+     * @param session the Maven session, used to parse the version constraint of the skin prerequisites
      * @param skinFile the skin JAR file
      * @param skinId the skin identifier, used in messages
      * @param attributes attributes to use
@@ -92,9 +97,10 @@ public interface SiteRenderer {
      * @return a SiteRenderingContext.
      * @throws RendererException if it bombs.
      * @throws java.io.IOException if it bombs.
-     * @since 2.2.0
+     * @since 3.0.0 (2.2.0 without session)
      */
     SiteRenderingContext createContextForSkin(
+            Session session,
             File skinFile,
             String skinId,
             Map<String, ?> attributes,

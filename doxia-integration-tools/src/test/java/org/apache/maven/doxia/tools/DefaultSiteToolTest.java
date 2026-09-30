@@ -25,7 +25,7 @@ import org.apache.maven.doxia.site.Body;
 import org.apache.maven.doxia.site.Menu;
 import org.apache.maven.doxia.site.MenuItem;
 import org.apache.maven.doxia.site.SiteModel;
-import org.apache.maven.doxia.tools.stubs.SiteToolMavenProjectStub;
+import org.apache.maven.doxia.tools.stubs.SiteToolProjectStub;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -120,9 +120,9 @@ class DefaultSiteToolTest {
      */
     @Test
     void parentMenuItemFallsBackToArtifactId() {
-        SiteToolMavenProjectStub parent = new SiteToolMavenProjectStub("org.example", "unnamed-parent", "1.0");
+        SiteToolProjectStub parent = new SiteToolProjectStub("org.example", "unnamed-parent", "1.0");
         parent.setDistgributionManagementSiteUrl("https://example.org/site");
-        SiteToolMavenProjectStub project = new SiteToolMavenProjectStub("org.example", "child", "1.0");
+        SiteToolProjectStub project = new SiteToolProjectStub("org.example", "child", "1.0");
         project.setDistgributionManagementSiteUrl("https://example.org/site/child");
 
         SiteModel siteModel = new SiteModel();
